@@ -1,8 +1,33 @@
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import User
 from django.db.models import Q
 from django.shortcuts import render, redirect
 
 from base.forms import RoomForm
 from base.models import Room, Topic
+
+
+def login_page(request):
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+
+        try:
+            user = User.objects.get(username=username, password=password)
+        except User.DoesNotExist:
+            messages.error(request, "Invalid credentials")
+
+        user = authenticate(username=username, password=password)
+        login(request, user)
+        return redirect("home")
+
+    return render(request, "base/login_register.html")
+
+
+def logout_page(request):
+    logout(request)
+    return redirect("home")
 
 
 def home(request):
