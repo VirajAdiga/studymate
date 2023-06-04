@@ -11,7 +11,8 @@ def home(request):
         Q(topic__name__icontains=q) |
         Q(name__icontains=q) |
         Q(description__icontains=q)
-    )
+    ).select_related("topic", "host")
+
     room_count = rooms.count()
     topics = Topic.objects.all()
     return render(request, "base/home.html", {"rooms": rooms, "topics": topics, "room_count": room_count})
