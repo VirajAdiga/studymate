@@ -1,6 +1,7 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.db.models import Q
 from django.http import HttpResponse
@@ -8,6 +9,21 @@ from django.shortcuts import render, redirect
 
 from base.forms import RoomForm
 from base.models import Room, Topic
+
+
+def register(request):
+    form = UserCreationForm()
+    if request.method == "POST":
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.username = user.username.lower()
+            user.save()
+            login(request, user)
+            return redirect("home")
+        else:
+            messages.error(request, "An error occurred while registration")
+    return render(request, "base/register.html", {"form": form})
 
 
 def login_page(request):
@@ -28,7 +44,7 @@ def login_page(request):
             login(request, user)
             return redirect("home")
 
-    return render(request, "base/login_register.html")
+    return render(request, "base/login.html")
 
 
 def logout_page(request):
